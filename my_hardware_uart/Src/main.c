@@ -138,14 +138,15 @@ for (;;)
 //	}
 	if(HAL_TIMEOUT != HAL_UART_Receive(&huart4, my_data, _size, 1000) )//HAL_MAX_DELAY
 	{
-		my_delay(5000);
-		HAL_UART_Transmit(&huart4, my_data, _size, 1);
+		//my_delay(5000);
+		HAL_UART_Transmit(&huart4, my_data, _size, 1000);
 		
 	}
 	else
 	{
-		my_message = (uint8_t) 'A';
+		//my_message = (uint8_t) 'A';
 		HAL_UART_Transmit(&huart4, my_data, _size, 1);
+		
 	}
 //	GPIOE->ODR = GPIOE->ODR ^ 0x00000100;
 	//my_delay(500000);
