@@ -118,7 +118,7 @@ int main(void)
 	uint8_t my_message = 0xFF;
 	my_data = &my_message;
 	//my_data = (uint8_t*) my_string;
-	GPIOE->ODR = 0x00000100;	
+	GPIOE->ODR = 0x00000000;	
 	
   /* USER CODE END 2 */
 
@@ -131,31 +131,33 @@ int main(void)
 for (;;)
 {
 
-//	if(HAL_TIMEOUT != HAL_UART_Receive(&huart4, my_data, _size, 1) )
-//	{	
-//		my_delay(5000);
-//		HAL_UART_Transmit(&huart4, my_data, _size, 1);
-//	}
+
+	//__HAL_UART_CLEAR_FLAG(huart4, USART_ICR_ORECF);
 	if(HAL_TIMEOUT != HAL_UART_Receive(&huart4, my_data, _size, 1000) )//HAL_MAX_DELAY
 	{
-		//my_delay(5000);
+		if(__HAL_UART_GET_FLAG(&huart4, USART_ICR_ORECF))
+		{
+			__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
+			GPIOE->ODR = GPIOE->ODR ^ 0x00000200;
+		}
+		//my_message = (uint8_t) 'A';
 		HAL_UART_Transmit(&huart4, my_data, _size, 1000);
 		
 	}
 	else
 	{
-		//my_message = (uint8_t) 'A';
-		HAL_UART_Transmit(&huart4, my_data, _size, 1);
+		if(__HAL_UART_GET_FLAG(&huart4, USART_ICR_ORECF))
+		{
+			__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
+			GPIOE->ODR = GPIOE->ODR ^ 0x00000100;
+		}
+		//my_message = (uint8_t) 'T';
+		HAL_UART_Transmit(&huart4, my_data, _size, 1000);
 		
 	}
-//	GPIOE->ODR = GPIOE->ODR ^ 0x00000100;
-	//my_delay(500000);
-}
-	//	GPIOE->ODR = GPIOE->ODR ^ 0x00001000;
 
-	//	my_delay(500000);
-	
-		//my_delay(255);//1500000
+}
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
