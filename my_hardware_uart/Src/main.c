@@ -83,7 +83,7 @@ void debugPrint(UART_HandleTypeDef *, char*);
   */
 	
 int main(void)
- {
+{
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -101,15 +101,14 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-	
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_UART4_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
 	const uint16_t _size = 1;
 	char outbuffer = 0xff;//'H';
@@ -126,8 +125,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//HAL_UART_Transmit(&huart4, &outbuffer, 1, 1);
-		//debugPrint(&huart4, my_string);
+					//debugPrint(&huart4, my_string);
 for (;;)
 {
 
@@ -138,7 +136,7 @@ for (;;)
 		if(__HAL_UART_GET_FLAG(&huart4, USART_ICR_ORECF))
 		{
 			__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
-			GPIOE->ODR = GPIOE->ODR ^ 0x00000200;
+			GPIOE->ODR = GPIOE->ODR ^ 0x00000200;// PE 9 (RED)
 		}
 		//my_message = (uint8_t) 'A';
 		HAL_UART_Transmit(&huart4, my_data, _size, 1000);
@@ -149,19 +147,15 @@ for (;;)
 		if(__HAL_UART_GET_FLAG(&huart4, USART_ICR_ORECF))
 		{
 			__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
-			GPIOE->ODR = GPIOE->ODR ^ 0x00000100;
+			GPIOE->ODR = GPIOE->ODR ^ 0x00000100;// PE 8
 		}
-			GPIOE->ODR = GPIOE->ODR ^ 0x00001000;
+			GPIOE->ODR = GPIOE->ODR ^ 0x00001000;// PE 12
 		//my_message = (uint8_t) 'T';
 		HAL_UART_Transmit(&huart4, my_data, _size, 1000);
 		
 	}
 
 }
-
-  /* USER CODE END WHILE */
-
-  /* USER CODE BEGIN 3 */
 
   }
   /* USER CODE END 3 */
@@ -172,13 +166,6 @@ for (;;)
   * @brief System Clock Configuration
   * @retval None
   */
-
-void debugPrint(UART_HandleTypeDef *my_uart, char *_out)
-{  
-	//uint8_t QTY = (uint8_t) sizeof(_out);
-	uint8_t QTY = (uint8_t) strlen(_out);
-	HAL_UART_Transmit(my_uart, (uint8_t *) _out, QTY, QTY-1); // 1) pointer to UART, 2) symbol, 3) QTY, 4)...(10  == 12 symbols, )
-} //	0 => 2; 1 => 3; 2 => 4; 3 => 5; 4 => 6; -//-; 20 => 21; -//- ; 29 => 30 => 31; ;  31 => 32;
 void SystemClock_Config(void)
 {
 
@@ -188,12 +175,13 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -205,10 +193,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -248,6 +236,11 @@ static void MX_TIM6_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  if (HAL_TIM_OnePulse_Init(&htim6, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
@@ -269,6 +262,11 @@ static void MX_TIM7_Init(void)
   htim7.Init.Period = 0;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_OnePulse_Init(&htim7, TIM_OPMODE_SINGLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
