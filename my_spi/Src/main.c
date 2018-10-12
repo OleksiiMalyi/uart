@@ -142,22 +142,22 @@ int main(void)
 			{
 				__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
 				GPIOE->ODR = GPIOE->ODR ^ 0x00000200;// PE 9 (RED) (indication only
-			}
+			}//end if
 			
 			HAL_SPI_TransmitReceive(&hspi2, my_data, my_data_from_spi, _size, 1);
 			HAL_UART_Transmit(&huart4, my_data_from_spi, _size, 1000);
-		}
+		}//end if
 		else
 		{
 			if(__HAL_UART_GET_FLAG(&huart4, USART_ICR_ORECF))
 			{
 				__HAL_UART_CLEAR_FLAG(&huart4, USART_ICR_ORECF);
 				GPIOE->ODR = GPIOE->ODR ^ 0x00000100;// PE 8 (indication only
-			}
+			}//end if
 				GPIOE->ODR = GPIOE->ODR ^ 0x00001000;// PE 12 (indication only)
 			//my_message = (uint8_t) 'T';
 			HAL_UART_Transmit(&huart4, _time_out, 8, 1000);
-		} //end if
+		} //end else
 
 
   }//end while
