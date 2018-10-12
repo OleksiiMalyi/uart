@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'my_hardware_uart' 
- * Target:  'my_hardware_uart' 
+ * Project: 'my_spi' 
+ * Target:  'my_spi' 
  */
 
 #ifndef RTE_COMPONENTS_H
